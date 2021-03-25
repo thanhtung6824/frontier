@@ -21,7 +21,7 @@ use sp_std::{marker::PhantomData, vec::Vec, boxed::Box, mem, collections::btree_
 use sp_core::{U256, H256, H160};
 use sp_runtime::traits::UniqueSaturatedInto;
 use frame_support::{
-	debug, ensure, traits::{Get, Currency, ExistenceRequirement},
+	ensure, traits::{Get, Currency, ExistenceRequirement},
 	storage::{StorageMap, StorageDoubleMap},
 };
 use sha3::{Keccak256, Digest};
@@ -91,7 +91,7 @@ impl<T: Config> Runner<T> {
 
 		let used_gas = U256::from(executor.used_gas());
 		let actual_fee = executor.fee(gas_price);
-		debug::debug!(
+		log::debug!(
 			target: "evm",
 			"Execution {:?} [source: {:?}, value: {}, gas_limit: {}, actual_fee: {}]",
 			reason,
@@ -106,7 +106,7 @@ impl<T: Config> Runner<T> {
 		let state = executor.into_state();
 
 		for address in state.substate.deletes {
-			debug::debug!(
+			log::debug!(
 				target: "evm",
 				"Deleting account at {:?}",
 				address
@@ -115,7 +115,7 @@ impl<T: Config> Runner<T> {
 		}
 
 		for log in &state.substate.logs {
-			debug::trace!(
+			log::trace!(
 				target: "evm",
 				"Inserting log for {:?}, topics ({}) {:?}, data ({}): {:?}]",
 				log.address,
@@ -445,7 +445,7 @@ impl<'vicinity, 'config, T: Config> StackStateT<'config> for SubstrateStackState
 
 	fn set_storage(&mut self, address: H160, index: H256, value: H256) {
 		if value == H256::default() {
-			debug::debug!(
+			log::debug!(
 				target: "evm",
 				"Removing storage for {:?} [index: {:?}]",
 				address,
@@ -453,7 +453,7 @@ impl<'vicinity, 'config, T: Config> StackStateT<'config> for SubstrateStackState
 			);
 			AccountStorages::remove(address, index);
 		} else {
-			debug::debug!(
+			log::debug!(
 				target: "evm",
 				"Updating storage for {:?} [index: {:?}, value: {:?}]",
 				address,
@@ -477,7 +477,7 @@ impl<'vicinity, 'config, T: Config> StackStateT<'config> for SubstrateStackState
 	}
 
 	fn set_code(&mut self, address: H160, code: Vec<u8>) {
-		debug::debug!(
+		log::debug!(
 			target: "evm",
 			"Inserting code ({} bytes) at {:?}",
 			code.len(),
